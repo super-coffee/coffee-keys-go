@@ -22,3 +22,7 @@ A Key Server, which can store and distribute public key safely and quickly.
 5. 运行 二进制程序
 6. 访问 `your.domain`，查看效果
 
+## 图片展示
+![pic1](./pic/CF1.png)
+![pic1](./pic/CF2.png)
+![pic1](./pic/CF3.png)
