@@ -1,0 +1,13 @@
+{
+  "Host": "127.0.0.1",
+  "Port": "8848",
+  "DBUserName": "key",
+  "DBPassword": "xxxxxx",
+  "DBIp": "xxxxx",
+  "DBPort": "3306",
+  "DBName": "xxxxxxx",
+  "DBAdapter": "mysql",
+  "CsrfKey": "9CD0F421E53A477C084477AEA06096F2",
+  "RecaptchaPublic": "xxxxxxxxx",
+  "RecaptchaSecret": "xxxxxxxxxx"
+}

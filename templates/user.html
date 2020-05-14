@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Super-Coffee</title>
+    <link rel="stylesheet" href="/static/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="/static/assets/fonts/fontawesome-all.min.css">
+    <link href="/static/css/toastr.css" rel="stylesheet"/>
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+        <div class="container-fluid d-flex flex-column p-0">
+            <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-cube"></i></div>
+                <div class="sidebar-brand-text mx-3"><span>Super-Coffee</span></div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin"><i
+                                class="fas fa-tachometer-alt"></i><span>首页</span></a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/user"><i
+                                class="fas fa-user-alt"></i><span>个人信息</span></a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/logout"><i
+                                class="fas fa-sign-out-alt"></i><span>登出</span></a></li>
+            </ul>
+            <div class="text-center d-none d-md-inline">
+                <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+            </div>
+        </div>
+    </nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                <div class="container-fluid">
+                    <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i
+                                class="fas fa-bars"></i></button>
+                    <form class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group"><input class="bg-light form-control border-0 small" type="text"
+                                                        placeholder="Search for ...">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4">你好{{ name }}</h3>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="card shadow mb-5">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">修改个人信息</p>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form id="edit" onsubmit="return false" action="##" method="post">
+                                            {{ csrf|safe }}
+                                            <div class="form-group"><label
+                                                        for="signature"><strong>名称</strong><br></label><input
+                                                        class="form-control form-control-user" type="text"
+                                                        placeholder={{ name }} name="newname"/></div>
+                                            <div class="form-group"><label
+                                                        for="signature"><strong>邮箱</strong>  禁止修改，如需修改请联系站长!<br></label><input
+                                                        class="form-control form-control-user" type="email"
+                                                        id="Email" aria-describedby="emailHelp"
+                                                        placeholder={{ mail }} name="mail" disabled></div>
+                                            <div class="form-group"><label
+                                                        for="signature"><strong>旧密码</strong>  修改密码必须输入本信息<br></label><input
+                                                        class="form-control form-control-user"
+                                                        type="password" id="exampleInputPassword"
+                                                        placeholder="请输入旧密码" name="oldpassword"></div>
+                                            <div class="form-group"><label
+                                                        for="signature"><strong>新密码</strong><br></label><input
+                                                        class="form-control form-control-user"
+                                                        type="password" id="exampleInputPassword"
+                                                        placeholder="请输入新密码" name="newpassword"></div>
+                                            <div class="form-group">
+                                                <button class="btn btn-primary btn-sm" id="btn_edit" onclick="edit()">修改信息</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <footer class="bg-white sticky-footer">
+            <div class="container my-auto">
+                <div class="text-center my-auto copyright"><span>Super-Coffee © 2020</span></div>
+            </div>
+        </footer>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
+<script src="/static/assets/js/jquery.min.js"></script>
+<script src="/static/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/assets/js/theme.js"></script>
+<script src="/static/js/toastr.min.js"></script>
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-top-center",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+</script>
+
+<script>
+    function edit() {
+        document.getElementById("btn_edit").disabled=true;
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "/admin/edit/user",//url
+            data: $('#edit').serialize(),
+            headers: {"X-Csrf-Token": "{{ key }}"},
+            success: function (result) {
+                if (result.status == false) {
+                    document.getElementById("btn_edit").disabled=false;
+                    toastr.error("修改错误: " + result.data);
+                } else {
+                    toastr.success(result.data);
+                    document.getElementById("btn_edit").disabled=false;
+                }
+                ;
+            },
+            error: function () {
+                toastr.error("后端服务器错误！");
+                document.getElementById("btn_edit").disabled=false;
+            }
+        });
+    }
+</script>
+</body>
+
+</html>

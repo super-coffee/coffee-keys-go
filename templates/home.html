@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Super-Coffee</title>
+    <link rel="stylesheet" href="/static/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="/static/assets/fonts/fontawesome-all.min.css">
+    <link href="/static/css/toastr.css" rel="stylesheet"/>
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+        <div class="container-fluid d-flex flex-column p-0">
+            <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-cube"></i></div>
+                <div class="sidebar-brand-text mx-3"><span>Super-Coffee</span></div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin"><i
+                                class="fas fa-tachometer-alt"></i><span>首页</span></a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/user"><i
+                                class="fas fa-user-alt"></i><span>个人信息</span></a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/logout"><i
+                                class="fas fa-sign-out-alt"></i><span>登出</span></a></li>
+            </ul>
+            <div class="text-center d-none d-md-inline">
+                <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+            </div>
+        </div>
+    </nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                <div class="container-fluid">
+                    <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i
+                                class="fas fa-bars"></i></button>
+                    <form class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group"><input class="bg-light form-control border-0 small" type="text"
+                                                        placeholder="Search for ...">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4">你好{{ name }}</h3>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="card shadow mb-5">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">站内公告</p>
+                            </div>
+                            <div class="card-body">
+                                {{ notice|safe }}
+                            </div>
+                        </div>
+                        <div class="card shadow mb-5">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">添加证书</p>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form action="/admin/add" method="post">
+                                            {{ csrf|safe }}
+                                            <div class="form-group"><label
+                                                        for="signature"><strong>证书标题</strong><br></label><input
+                                                        class="bg-light form-control" type="text"
+                                                        placeholder="请输入以区分您的证书" name="info" /></div>
+                                            <div class="form-group"><label
+                                                        for="signature"><strong>证书内容</strong><br></label><textarea
+                                                        class="form-control" rows="4" name="content"></textarea></div>
+                                            <div class="form-group">
+                                                <button class="btn btn-primary btn-sm" type="submit">添加证书</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card shadow mb-5">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">个人信息</p>
+                            </div>
+                            <div class="card-body">
+                                <p class="m-0">UID: <code>{{ uid }}</code></p>
+                                <p class="m-0">名称: {{ name }}</p>
+                                <p class="m-0">邮箱: {{ mail }}</p>
+                            </div>
+                            <div class="card-footer">
+                                <a class="btn btn-primary btn-sm" href="/admin/user">修改用户信息</a>
+                            </div>
+                        </div>
+                        <div class="card shadow mb-5">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">证书管理</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <ul class="list-group list-group-flush">
+                                            {% for i in keys %}
+                                            <li class="list-group-item">
+                                                <div class="row align-items-center no-gutters">
+                                                    <div class="col mr-2">
+                                                        <h6 class="mb-0"><strong><a href="#" class="alert-link" onclick="getkey({{ i.Id }});return false;">{{ i.Info }}</a></strong></h6><span class="text-xs">{{ i.Date }}</span>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <a class="btn btn-danger btn-sm d-none d-sm-inline-block"
+                                                           role="button" href="/admin/del/{{ i.Id }}"><i
+                                                                    class="fas fa-trash fa-sm text-white-50"></i> 删除证书</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            {% endfor %}
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <footer class="bg-white sticky-footer">
+            <div class="container my-auto">
+                <div class="text-center my-auto copyright"><span>Super-Coffee © 2020</span></div>
+            </div>
+        </footer>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
+<script src="/static/assets/js/jquery.min.js"></script>
+<script src="/static/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/assets/js/theme.js"></script>
+<script src="/static/js/toastr.min.js"></script>
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": false,
+        "positionClass": "toast-top-full-width",
+        "preventDuplicates": true,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "0",
+        "extendedTimeOut": "0",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+</script>
+
+<script>
+    function getkey(id) {
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "/admin/key/"+id,//url
+            data: $('#login').serialize(),
+            headers: {"X-Csrf-Token": "{{ key }}"},
+            success: function (result) {
+                if (result.status == false) {
+                    toastr.error("查询错误: " + result.data);
+                } else {
+                    toastr.info("证书内容:\n"+result.data)
+                }
+                ;
+            },
+            error: function () {
+                toastr.error("后端服务器错误！");
+            }
+        });
+    }
+</script>
+</body>
+
+</html>
