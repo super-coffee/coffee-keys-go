@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>查询公匙</title>
+    <title>查询公钥</title>
     <link rel="stylesheet" href="/static/assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
@@ -25,10 +25,10 @@
                         </div>
                         <div id="search" class="col-lg-8">
                             {% verbatim %}
-                            <div class="p-5">
-                                <div class="p-3">
+                            <div class="p-md-5 p-3">
+                                <div class="p-md-3 p-5">
                                     <div class="text-center">
-                                        <h4 class="text-dark mb-4">查询公匙</h4>
+                                        <h4 class="text-dark mb-4">查询公钥</h4>
                                     </div>
 
                                     <div class="input-group"><input v-model="mail" @keyup.enter="fsearch"
@@ -41,29 +41,37 @@
                                     </div>
                                 </div>
                                 <div id="zs" v-show="canSee" class="row m-0 mt-2">
+
                                     <div class="col-md-4">
-                                        <span class="text-xs">公匙文件夹</span>
+
+                                        <span class="text-xs">公钥文件夹</span>
                                         <div class="list-group">
-                                            <button v-for="(i,d) in keys" @click="change(d)" type="button" v-bind:class="{ active:d===select }" class="list-group-item list-group-item-action">
-                                                {{i.description}}
+                                            <button v-for="(i,d) in keys" @click="change(d)" type="button"
+                                                    v-bind:class="{ active:d===select }"
+                                                    class="list-group-item list-group-item-action">
+                                                <i class="fa fa-key"></i> {{i.description}}
                                             </button>
 
 
                                         </div>
                                     </div>
                                     <div class="col-md-8">
-                                        <span class="text-xs">{{keys.length>0 ? keys[select].description:''}}</span>
+                                        <span class="text-xs fa-pull-left text-left">{{keys.length>0 ? keys[select].description:''}}</span>
+                                        <span class="text-xs fa-pull-right text-right">{{keys.length>0 ? keys[select].date:''}}</span>
                                         <textarea class="form-control" placeholder="密匙"
                                                   readonly="readonly"
                                                   rows="10"
                                                   id="key">{{keys.length>0 ? keys[select].pubkey:''}}</textarea>
+                                        <button type="button" class="btn btn-primary mt-1" @click="copy">
+                                            <i class="fa fa-clipboard"></i> 复制到剪切板
+                                        </button>
 
-                                        <span class="text-xs">{{keys.length>0 ? keys[select].date:''}}</span>
 
                                     </div>
                                 </div>
                                 <hr>
-                                <div v-show="!canSee" class="text-center"><p class="small text-left ml-2 mr-2">本页面用于使用所有者邮箱查询公匙！</p>
+                                <div v-show="!canSee" class="text-center"><p class="small text-left ml-3 mr-2"> ·
+                                    本页面用于使用所有者邮箱查询公钥！</p>
                                 </div>
                                 <div class="text-center"><a class="small" href="/login">登录/注册</a></div>
                                 <hr>
@@ -81,6 +89,7 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="/static/assets/js/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="/static/js/vue-clipboard.min.js"></script>
 <script src="/static/assets/bootstrap/js/bootstrap.min.js"></script>
 <script src="/static/js/toastr.min.js"></script>
 <script>
@@ -105,6 +114,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
 
 <script>
+
     var app = new Vue({
         el: "#search",
         data: {
@@ -114,6 +124,14 @@
             canSee: false
         },
         methods: {
+            copy: function(){
+                var pbkey = this.keys[this.select].pubkey;
+                this.$copyText(pbkey).then(function (e) {
+                    toastr.success("复制成功");
+                }, function (e) {
+                    toastr.error("复制失败"+e);
+                })
+            },
             fsearch: function () {
                 var that = this;
                 var regEmail = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
@@ -145,10 +163,6 @@
                 this.select = i;
 
             },
-            copy: function (i) {
-                this.select = i;
-
-            }
         }
     })
 </script>
