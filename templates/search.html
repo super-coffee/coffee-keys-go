@@ -4,125 +4,155 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>查询密匙</title>
+    <title>查询公匙</title>
     <link rel="stylesheet" href="/static/assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="/static/assets/fonts/fontawesome-all.min.css">
     <link href="/static/css/toastr.css" rel="stylesheet"/>
 </head>
 
 <body class="bg-gradient-primary">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-9 col-lg-12 col-xl-10">
-                <div class="card shadow-lg o-hidden border-0 my-5">
-                    <div class="card-body p-0">
-                        <div class="row">
-                            <div class="col-lg-5 d-none d-lg-flex">
-                                <div class="flex-grow-1 bg-register-image"
-                                     style="background-image: url(&quot;static/assets/img/bg.jpg&quot;);"></div>
-                            </div>
-                            <div class="col-lg-7">
-                                <div class="p-5">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-12 col-xl-10">
+            <div class="card shadow-lg o-hidden border-0 my-5">
+                <div class="card-body p-0">
+                    <div class="row">
+                        <div class="col-lg-4 d-none d-lg-flex">
+                            <div class="flex-grow-1 bg-register-image"
+                                 style="background-image: url(&quot;static/assets/img/bg.jpg&quot;);"></div>
+                        </div>
+                        <div id="search" class="col-lg-8">
+                            {% verbatim %}
+                            <div class="p-5">
+                                <div class="p-3">
                                     <div class="text-center">
-                                        <h4 class="text-dark mb-4">查询密匙</h4>
+                                        <h4 class="text-dark mb-4">查询公匙</h4>
                                     </div>
-                                    <form id="search" class="mr-auto ml-md-3 my-2 my-md-0 mw-100" onsubmit="return false" action="##" method="post">
 
-                                        <div class="input-group"><input name="mail" class="bg-light form-control border-0 small" type="email" placeholder="持有者邮箱">
-                                            <div class="input-group-append"><button id="b_search" onclick="search()" class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
+                                    <div class="input-group"><input v-model="mail" @keyup.enter="fsearch"
+                                                                    class="bg-light form-control border-0 small"
+                                                                    type="email" placeholder="持有者邮箱">
+                                        <div class="input-group-append">
+                                            <button @click="fsearch" class="btn btn-primary py-0" type="button"><i
+                                                    class="fas fa-search"></i></button>
                                         </div>
-                                    </form>
-                                    <div class="m-3">
-                                    <textarea class="form-control" placeholder="密匙" readonly="readonly" rows="10" id="key"></textarea></div>
-                                    <hr>
-                                    <div class="text-center"><p class="small text-left ml-2 mr-2">本页面用于使用所有者邮箱查询公匙！</p></div>
-                                    <div class="text-center"><a class="small" href="/login">登录/注册</a></div>
-                                    <hr>
-                                    <p class="text-center copyright">Super-Coffee © 2020</p>
+                                    </div>
                                 </div>
+                                <div id="zs" v-show="canSee" class="row m-0 mt-2">
+                                    <div class="col-md-4">
+                                        <span class="text-xs">公匙文件夹</span>
+                                        <div class="list-group">
+                                            <button v-for="(i,d) in keys" @click="change(d)" type="button" v-bind:class="{ active:d===select }" class="list-group-item list-group-item-action">
+                                                {{i.description}}
+                                            </button>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <span class="text-xs">{{keys.length>0 ? keys[select].description:''}}</span>
+                                        <textarea class="form-control" placeholder="密匙"
+                                                  readonly="readonly"
+                                                  rows="10"
+                                                  id="key">{{keys.length>0 ? keys[select].pubkey:''}}</textarea>
+
+                                        <span class="text-xs">{{keys.length>0 ? keys[select].date:''}}</span>
+
+                                    </div>
+                                </div>
+                                <hr>
+                                <div v-show="!canSee" class="text-center"><p class="small text-left ml-2 mr-2">本页面用于使用所有者邮箱查询公匙！</p>
+                                </div>
+                                <div class="text-center"><a class="small" href="/login">登录/注册</a></div>
+                                <hr>
+                                <p class="text-center copyright">Super-Coffee © 2020</p>
+
                             </div>
+                            {% endverbatim %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="/static/assets/js/jquery.min.js"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/static/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="/static/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/js/toastr.min.js"></script>
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-top-center",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
 
-    <script src="/static/assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/static/js/toastr.min.js"></script>
-    <script>
-        toastr.options = {
-            "closeButton": true,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": true,
-            "positionClass": "toast-top-center",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
-    <script>
-        $('#key').hide()
-        function getCookie(name) {
-            console.log(document.cookie)
-            var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-            if (arr = document.cookie.match(reg))
-                return unescape(arr[2]);
-            else
-                return null;
-        }
+<script>
+    var app = new Vue({
+        el: "#search",
+        data: {
+            mail: "",
+            keys: [],
+            select: 0,
+            canSee: false
+        },
+        methods: {
+            fsearch: function () {
+                var that = this;
+                var regEmail = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+                if (this.mail !== '' && !regEmail.test(this.mail)) {
+                    toastr.error("邮箱格式不正确");
+                } else {
+                    let data = new FormData();
+                    data.append("mail", this.mail)
+                    axios({
+                        url: "/api/searchkey",
+                        method: "post",
+                        data: data,
+                        headers: {"X-Csrf-Token": "{{ key }}"}
+                    }).then(function (req) {
 
-        function search() {
-            document.getElementById("b_search").disabled=true;
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: "/api/searchkey",//url
-                data: $('#search').serialize(),
-                headers: {"X-Csrf-Token": "{{ key }}"},
-                success: function (result,status,xhr) {
-                    if (result.status == false) {
-                        toastr.error("错误: " + result.data);
-                    } else {
-
-                        toastr.success("查询成功");
-                        var key = $('#key');
-                        var msg = "";
-                        var keys = result.data;
-                        for(i in keys){
-                            msg +=  "====="+keys[i].info+"=====\n"+keys[i].pubkey +"\n=============\n";
+                        if (req.data.status === true) {
+                            that.keys = req.data.data;
+                            that.canSee = true;
+                            toastr.success("查询成功");
+                        } else {
+                            toastr.error(req.data.data);
                         }
-                        key.val(msg);
-                        key.show();
 
-                    }
-                    document.getElementById("b_search").disabled=false;
-                },
-                error: function (result,status,xhr) {
-                     if (xhr.status !== 200){
-                            toastr.error("错误: CSRF密匙失效");
-                            return
-                        }
-                    toastr.error("后端服务器错误！");
-                    document.getElementById("b_search").disabled=false;
+
+                    })
                 }
+            },
+            change: function (i) {
+                this.select = i;
 
-            });
+            },
+            copy: function (i) {
+                this.select = i;
 
+            }
         }
-    </script>
+    })
+</script>
+
 </body>
 
 </html>
