@@ -26,8 +26,13 @@
                                 class="fas fa-tachometer-alt"></i><span>首页</span></a></li>
                 <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/user"><i
                                 class="fas fa-user-alt"></i><span>个人信息</span></a></li>
+                {% if role == 1 %}
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/cf"><i
+                                class="fas fa-coffee"></i><span>后台管理</span></a></li>
+                {% endif %}
                 <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/logout"><i
                                 class="fas fa-sign-out-alt"></i><span>登出</span></a></li>
+
             </ul>
             <div class="text-center d-none d-md-inline">
                 <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
@@ -116,7 +121,7 @@
                                             <li class="list-group-item">
                                                 <div class="row align-items-center no-gutters">
                                                     <div class="col mr-2">
-                                                        <h6 class="mb-0"><strong><a href="#" class="alert-link" onclick="getkey({{ i.Id }});return false;">{{ i.Info }}</a></strong></h6><span class="text-xs">{{ i.Date }}</span>
+                                                        <h6 class="mb-0"><strong><a href="#" class="alert-link" onclick="getkey({{ i.Id }});return false;">{{ i.Description }}</a></strong></h6><span class="text-xs">{{ i.Date }}</span>
                                                     </div>
                                                     <div class="col-auto">
                                                         <a class="btn btn-danger btn-sm d-none d-sm-inline-block"

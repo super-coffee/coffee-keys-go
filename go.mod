@@ -27,6 +27,7 @@ require (
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.10.0 // indirect
 	github.com/peterh/liner v1.2.0 // indirect
+	github.com/revel/revel v0.21.0
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/snowlyg/IrisAdminApi/backend v0.0.0-20200430125255-66139b78ce02

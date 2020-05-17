@@ -26,6 +26,10 @@
                                 class="fas fa-tachometer-alt"></i><span>首页</span></a></li>
                 <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/user"><i
                                 class="fas fa-user-alt"></i><span>个人信息</span></a></li>
+                {% if role == 1 %}
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/cf"><i
+                                class="fas fa-coffee"></i><span>后台管理</span></a></li>
+                {% endif %}
                 <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/logout"><i
                                 class="fas fa-sign-out-alt"></i><span>登出</span></a></li>
             </ul>
@@ -140,7 +144,7 @@
             data: $('#edit').serialize(),
             headers: {"X-Csrf-Token": "{{ key }}"},
             success: function (result) {
-                if (result.status == false) {
+                if (result.status === false) {
                     document.getElementById("btn_edit").disabled=false;
                     toastr.error("修改错误: " + result.data);
                 } else {

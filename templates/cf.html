@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Super-Coffee</title>
+    <link rel="stylesheet" href="/static/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="/static/assets/fonts/fontawesome-all.min.css">
+    <link href="/static/css/toastr.css" rel="stylesheet"/>
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+        <div class="container-fluid d-flex flex-column p-0">
+            <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-cube"></i></div>
+                <div class="sidebar-brand-text mx-3"><span>Super-Coffee</span></div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin"><i
+                        class="fas fa-tachometer-alt"></i><span>首页</span></a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/user"><i
+                        class="fas fa-user-alt"></i><span>个人信息</span></a></li>
+                {% if role == 1 %}
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/cf"><i
+                        class="fas fa-coffee"></i><span>后台管理</span></a></li>
+                {% endif %}
+                <li class="nav-item" role="presentation"><a class="nav-link" href="/admin/logout"><i
+                        class="fas fa-sign-out-alt"></i><span>登出</span></a></li>
+            </ul>
+            <div class="text-center d-none d-md-inline">
+                <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+            </div>
+        </div>
+    </nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                <div class="container-fluid">
+                    <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i
+                            class="fas fa-bars"></i></button>
+                    <form class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group"><input class="bg-light form-control border-0 small" type="text"
+                                                        placeholder="Search for ...">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </nav>
+            <div class="container-fluid">
+                <h3 class="text-dark mb-4">后台管理 你好管理员{{ name }}</h3>
+                {% verbatim %}
+                <div id="app" class="row">
+                    <div class="col-md-4">
+                        <div class="card shadow mb-5">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">网站设置</p>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group"><label
+                                                for="notice"><strong>公告内容</strong> 支持HTML<br></label><textarea
+                                                id="notice" class="form-control form-control-user"
+                                                placeholder="这里是在首页上显示的公告" v-model="notice"
+                                                rows="6"></textarea></div>
+
+                                        <div class="form-group">
+                                            <button class="btn btn-primary btn-sm" id="btn_edit" @click="upSet">
+                                                保存
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card shadow mb-5">
+                            <div class="card-header py-3"><p class="text-primary m-0 font-weight-bold">管理员操作说明</p></div>
+                            <div class="card-body">
+                                叽里呱啦
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card shadow mb-5">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 font-weight-bold">用户管理</p>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table table-responsive-lg">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">用户名</th>
+                                                <th scope="col">邮箱</th>
+                                                <th scope="col">用户组</th>
+                                                <th scope="col">最近登录IP</th>
+                                                <th scope="col">注册IP</th>
+                                                <th scope="col">注册时间</th>
+                                                <th scope="col">操作</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr v-for="(i,index) in users">
+                                                <td scope="row">{{ i.id }}</td>
+                                                <td>{{ i.name }}</td>
+                                                <td>{{ i.mail }}</td>
+                                                <td>{{ i.role===1?"超级管理员" :"" }}{{ i.role===0?"普通用户" :"" }}{{
+                                                    i.role===-1?"已封禁" :"" }}
+                                                </td>
+                                                <td>{{ i.recip }}</td>
+                                                <td>{{ i.regip }}</td>
+
+                                                <td>{{ i.date }}</td>
+                                                <td>
+                                                    <div class="btn-group" role="group" :aria-label="i.name">
+                                                        <button type="button" @click="resetPassword(i.id)"
+                                                                class="btn btn-primary">密码重置
+                                                        </button>
+                                                        <button v-show="i.role!==-1" type="button"
+                                                                @click="banUser(i.id,index)"
+                                                                class="btn btn-warning">用户禁用
+                                                        </button>
+                                                        <button v-show="i.role===-1" type="button"
+                                                                @click="unBanUser(i.id,index)"
+                                                                class="btn btn-success">用户启用
+                                                        </button>
+
+                                                        <button data-toggle="tooltip" data-placement="top"
+                                                                title="你确定要删除吗,这是不可逆的！" type="button"
+                                                                @click="removeUser(i.id,index)"
+                                                                class="btn btn-danger btn-secondary">用户删除
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="fa-pull-right ">共{{ Math.ceil(total/pagesize) }}页,{{ total }}个用户</div>
+                                <nav class="fa-pull-left">
+                                    <ul class="pagination">
+                                        <li class="page-item" :class="{'disabled':page===1}">
+                                            <div class="page-link" @click="prePage">上一页</div>
+                                        </li>
+                                        <li v-for="i in Math.ceil(total/pagesize)" :class="{ 'active':i===page }"
+                                            class="page-item">
+                                            <div @click="change(i)" class="page-link">{{ i }}</div>
+                                        </li>
+                                        <li class="page-item" :class="{'disabled':page===Math.ceil(total/pagesize)}">
+                                            <div class="page-link" @click="nextPage">下一页</div>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                {% endverbatim %}
+            </div>
+        </div>
+        <footer class="bg-white sticky-footer">
+            <div class="container my-auto">
+                <div class="text-center my-auto copyright"><span>Super-Coffee © 2020</span></div>
+            </div>
+        </footer>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
+<script src="/static/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="/static/js/vue-clipboard.min.js"></script>
+<script src="/static/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/assets/js/theme.js"></script>
+<script src="/static/js/toastr.min.js"></script>
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-top-center",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+</script>
+
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            notice: '{{ notice|safe }}',
+            users: [],
+            total: 0,
+            page: 1,
+            pagesize: 7
+        },
+        methods: {
+            banUser: function (id, index) {
+                let that = this;
+                let data = new FormData();
+                data.append("id", id);
+                axios({
+                    url: "/admin/cf/ban",
+                    method: "post",
+                    data: data,
+                    headers: {"X-Csrf-Token": "{{ key }}"},
+                }).then(function (req) {
+                    if (req.data.status === true) {
+                        toastr.success(req.data.data);
+                        that.users[index].role = -1;
+                    } else {
+                        toastr.error(req.data.data);
+                    }
+                })
+            },
+            unBanUser: function (id, index) {
+                let that = this;
+                let data = new FormData();
+                data.append("id", id);
+                axios({
+                    url: "/admin/cf/unban",
+                    method: "post",
+                    data: data,
+                    headers: {"X-Csrf-Token": "{{ key }}"},
+                }).then(function (req) {
+                    if (req.data.status === true) {
+                        toastr.success(req.data.data);
+                        that.users[index].role = 0;
+                    } else {
+                        toastr.error(req.data.data);
+                    }
+                })
+            },
+            removeUser: function (id, index) {
+                let data = new FormData();
+                data.append("id", id);
+                axios({
+                    url: "/admin/cf/remove",
+                    method: "post",
+                    data: data,
+                    headers: {"X-Csrf-Token": "{{ key }}"},
+                }).then(function (req) {
+                    if (req.data.status === true) {
+                        app.users.splice(index,1);
+                        app.total -=1;
+                        toastr.success(req.data.data);
+                    } else {
+                        toastr.error(req.data.data);
+                    }
+                })
+            },
+            resetPassword: function (id) {
+                let data = new FormData();
+                data.append("id", id);
+                let that = this;
+                axios({
+                    url: "/admin/cf/reset",
+                    method: "post",
+                    data: data,
+                    headers: {"X-Csrf-Token": "{{ key }}"},
+                }).then(function (req) {
+                    if (req.data.status === true) {
+                        toastr.success("密码重置成功,新密码已尝试放入你的剪切板,新密码为" + req.data.data);
+                        that.$copyText(req.data.data).then(function (e) {
+                            toastr.success("复制剪切板成功");
+                        }, function (e) {
+                            toastr.error("复制剪切板失败" + e);
+                        })
+                    } else {
+                        toastr.error(req.data.data);
+                    }
+                })
+            },
+            upSet: function () {
+                let data = new FormData();
+                data.append("notice", this.notice)
+                axios({
+                    url: "/admin/cf/upset",
+                    method: "post",
+                    data: data,
+                    headers: {"X-Csrf-Token": "{{ key }}"}
+                }).then(function (req) {
+                    if (req.data.status === true) {
+                        toastr.success("修改成功");
+                    } else {
+                        toastr.error(req.data.data);
+                    }
+                })
+            },
+            nextPage: function () {
+                this.page += 1;
+                axios({
+                    url: "/admin/cf/users/1/" + this.page + "/" + this.pagesize,
+                    method: "get",
+                }).then(function (req) {
+                    if (req.data.status === true) {
+                        app.users = req.data.data;
+                    } else {
+                        toastr.error(req.data.data);
+                    }
+                })
+
+            },
+            prePage: function () {
+                this.page -= 1;
+                axios({
+                    url: "/admin/cf/users/1/" + this.page + "/" + this.pagesize,
+                    method: "get",
+                }).then(function (req) {
+                    if (req.data.status === true) {
+                        app.users = req.data.data;
+                    } else {
+                        toastr.error(req.data.data);
+                    }
+                })
+            },
+            change: function (i) {
+                this.page = i;
+                axios({
+                    url: "/admin/cf/users/1/" + this.page + "/" + this.pagesize,
+                    method: "get",
+                }).then(function (req) {
+                    if (req.data.status === true) {
+                        app.users = req.data.data;
+                    } else {
+                        toastr.error(req.data.data);
+                    }
+                })
+            }
+        },
+    })
+    axios({
+        url: "/admin/cf/users/0/0/0",
+        method: "get",
+    }).then(function (req) {
+        if (req.data.status === true) {
+            app.total = req.data.data;
+        } else {
+            toastr.error(req.data.data);
+        }
+    })
+    axios({
+        url: "/admin/cf/users/1/1/" + app.pagesize,
+        method: "get",
+    }).then(function (req) {
+        if (req.data.status === true) {
+            app.users = req.data.data;
+        } else {
+            toastr.error(req.data.data);
+        }
+    })
+</script>
+</body>
+
+</html>

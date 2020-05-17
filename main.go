@@ -14,7 +14,9 @@ import (
 	"github.com/kataras/iris/v12/middleware/recover"
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/kataras/iris/v12/sessions"
+	"html"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -22,6 +24,9 @@ var (
 	sess       = sessions.New(sessions.Config{Cookie: "sk"})
 	protectUrl = []string{
 		"^/admin",
+	}
+	adminUrl = []string{
+		"^/admin/cf",
 	}
 	Client = netutil.Client(time.Duration(20 * time.Second))
 )
@@ -34,7 +39,9 @@ func main() {
 	protect := csrf.Protect([]byte(conf.Sysconfig.CsrfKey), csrf.Secure(false), csrf.ErrorHandler(csrfError))
 	user := mvc.New(app.Party("/", protect))
 	user.Handle(new(RootController))
-	app.RegisterView(iris.Django("./templates", ".html"))
+	temple := iris.Django("./templates", ".html")
+	temple.Reload(conf.Sysconfig.Debug)
+	app.RegisterView(temple)
 	app.OnErrorCode(iris.StatusNotFound, notFound)
 	app.HandleDir("/static", "static")
 	iris.RegisterOnInterrupt(func() {
@@ -71,6 +78,24 @@ func before(ctx iris.Context) {
 		if session.Get("name") == nil {
 			ctx.ViewData("code", "401 Error")
 			ctx.ViewData("error", `您需要先<a href="/login">登录</a>才能访问！`)
+			ctx.StatusCode(401)
+			ctx.View("error.html")
+			return
+		}
+	}
+	adminProtect := false
+	for i := range adminUrl {
+		match, _ := regexp.MatchString(adminUrl[i], ctx.Path())
+		if match {
+			adminProtect = true
+			break
+		}
+	}
+	if adminProtect {
+		session := sess.Start(ctx)
+		if session.Get("role") != 1 {
+			ctx.ViewData("code", "401 Error")
+			ctx.ViewData("error", `您的用户权限不够<a href="/admin">首页</a>`)
 			ctx.StatusCode(401)
 			ctx.View("error.html")
 			return
@@ -165,7 +190,7 @@ func (c *RootController) PostApiRegister() iris.Map {
 		return iris.Map{"status": false, "data": "请进行行为验证!"}
 	}
 	mail := c.Ctx.FormValue("mail")
-	err := models.Register(c.Ctx.FormValue("name"), mail, c.Ctx.FormValue("password"), c.Ctx.FormValue("repeat-password"))
+	err := models.Register(c.Ctx.FormValue("name"), mail, c.Ctx.FormValue("password"), c.Ctx.FormValue("repeat-password"), c.Ctx.RemoteAddr())
 	if err != nil {
 		return iris.Map{"status": false, "data": err.Error()}
 	}
@@ -185,12 +210,15 @@ func (c *RootController) PostApiVerifypassword() iris.Map {
 	if !result.Success {
 		return iris.Map{"status": false, "data": "请进行行为验证!"}
 	}
-	user, err := models.VerifyPassword(c.Ctx.FormValue("mail"), c.Ctx.FormValue("password"))
+	user, err := models.VerifyPassword(c.Ctx.FormValue("mail"), c.Ctx.FormValue("password"), c.Ctx.RemoteAddr())
 	if err != nil {
 		if conf.Sysconfig.Debug {
 			return iris.Map{"status": false, "data": err.Error()}
 		}
 		return iris.Map{"status": false, "data": "邮箱或密码错误"}
+	}
+	if user.Role == -1 {
+		return iris.Map{"status": false, "data": "用户已被封禁"}
 	}
 	session := sess.Start(c.Ctx)
 	session.Set("name", user.Name)
@@ -302,4 +330,86 @@ func (c *RootController) PostAdminEditUser() iris.Map {
 		"status": true,
 		"data":   "修改成功",
 	}
+}
+func (c *RootController) GetAdminCf() mvc.Result {
+	session := sess.Start(c.Ctx)
+	keys, err := models.GetKeyByMail(session.GetString("mail"))
+	if err != nil {
+		keys = nil
+	}
+	notice, err := models.ReadSetting("notice")
+	if err != nil {
+		notice = ""
+	}
+
+	return mvc.View{
+		Name: "cf.html",
+		Data: iris.Map{"uid": session.Get("uid"), "csrf": csrf.TemplateField(c.Ctx), "notice": notice, "name": session.Get("name"), "mail": session.Get("mail"), "keys": keys, "role": session.Get("role"), "key": csrf.Token(c.Ctx)},
+	}
+}
+func (c *RootController) GetAdminCfUsersBy(fun, page, pagesize int) iris.Map {
+	if fun == 0 {
+		count, err := models.GetUserCount()
+		if err != nil {
+			return iris.Map{"status": false, "data": err.Error()}
+		}
+		return iris.Map{"status": true, "data": count}
+	}
+	users, err := models.GetPageUsers(page, pagesize)
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	return iris.Map{"status": true, "data": users}
+
+}
+func (c *RootController) PostAdminCfUpset() iris.Map {
+	err := models.WriteSetting("notice", html.UnescapeString(c.Ctx.FormValue("notice")))
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	return iris.Map{"status": true, "data": "修改成功!"}
+}
+func (c *RootController) PostAdminCfBan() iris.Map {
+	id, err := strconv.Atoi(c.Ctx.FormValueDefault("id", "-1"))
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	err = models.BanUser(id)
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	return iris.Map{"status": true, "data": "封禁成功"}
+}
+func (c *RootController) PostAdminCfUnban() iris.Map {
+	id, err := strconv.Atoi(c.Ctx.FormValueDefault("id", "-1"))
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	err = models.UnBanUser(id)
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	return iris.Map{"status": true, "data": "解除封禁成功"}
+}
+func (c *RootController) PostAdminCfRemove() iris.Map {
+	id, err := strconv.Atoi(c.Ctx.FormValueDefault("id", "-1"))
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	err = models.RemoveUser(id)
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	return iris.Map{"status": true, "data": "删除账号成功"}
+}
+func (c *RootController) PostAdminCfReset() iris.Map {
+	id, err := strconv.Atoi(c.Ctx.FormValueDefault("id", "-1"))
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	newPassword, err := models.ResetPasswordById(id)
+	if err != nil {
+		return iris.Map{"status": false, "data": err.Error()}
+	}
+	return iris.Map{"status": true, "data": newPassword}
 }
